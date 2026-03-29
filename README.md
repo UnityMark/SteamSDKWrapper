@@ -10,10 +10,9 @@ A modular and easy-to-use Steamworks wrapper for Unity with automatic initializa
 - Achievements system
 - Avatar loading (Texture2D / Sprite)
 - Rich Presence (status)
-- Cloud Save
+- Cloud Save (Coming Soon)
 - Modular services (plug-and-play)
 - Custom Bootstrap system
-- Automatic Steam API initialization
 
 ---
 
