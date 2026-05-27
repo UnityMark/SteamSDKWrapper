@@ -44,17 +44,28 @@ namespace Mark.Steamworks
             if (!SteamUtils.GetImageSize(imageId, out uint width, out uint height))
                 return null;
 
-            byte[] image = new byte[width * height * 4];
+            int rgbaSize = (int)(width * height * 4);
+            byte[] rawImage = new byte[rgbaSize];
 
-            if (!SteamUtils.GetImageRGBA(imageId, image, image.Length))
+            if (!SteamUtils.GetImageRGBA(imageId, rawImage, rgbaSize))
                 return null;
 
+            // Создаем массив для "правильного" порядка строк
+            byte[] flippedImage = new byte[rgbaSize];
+            int stride = (int)width * 4; // Длина одной строки в байтах
+
+            for (int y = 0; y < height; y++)
+            {
+                // Берем строку y и кладем её в позицию (height - 1 - y)
+                Array.Copy(rawImage, y * stride, flippedImage, (height - 1 - y) * stride, stride);
+            }
+
             Texture2D texture = new Texture2D((int)width, (int)height, TextureFormat.RGBA32, false);
-            texture.LoadRawTextureData(image);
+            texture.LoadRawTextureData(flippedImage);
             texture.Apply();
 
-            texture = FlipTexture(texture);
-
+            // Теперь нам не нужно вызывать FlipTexture и удалять промежуточные текстуры,
+            // так как мы создали сразу правильную текстуру из массива.
             return Sprite.Create(
                 texture,
                 new Rect(0, 0, texture.width, texture.height),
@@ -75,7 +86,21 @@ namespace Mark.Steamworks
             }
 
             flipped.Apply();
+
+            // ВАЖНО: Texture2D — это unmanaged ресурс в контексте GPU.
+            // Если мы создаем временную текстуру для обработки (например, для флипа),
+            // старую нужно удалять через Destroy(), иначе возникнет утечка видеопамяти.
+            Destroy(original); 
             return flipped;
+        }
+
+        private void OnDestroy()
+        {
+            if (_avatarLoaded != null)
+            {
+                _avatarLoaded.Dispose();
+                _avatarLoaded = null;
+            }
         }
     }
 }

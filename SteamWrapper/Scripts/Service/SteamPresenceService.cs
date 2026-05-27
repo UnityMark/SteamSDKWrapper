@@ -26,5 +26,10 @@ namespace Mark.Steamworks
         {
             SteamFriends.ClearRichPresence();
         }
+
+        private void OnApplicationQuit()
+        {
+            ClearStatus();
+        }
     }
 }

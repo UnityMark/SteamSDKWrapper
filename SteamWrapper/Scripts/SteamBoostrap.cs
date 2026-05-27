@@ -1,13 +1,25 @@
 using UnityEngine;
 using System.Collections.Generic;
 using System;
+using Sirenix.OdinInspector;
+using Unity.VisualScripting;
 
 namespace Mark.Steamworks
 {
     public sealed class SteamBoostrap : MonoBehaviour
     {
+        enum SteamService
+        {
+            Avatar,
+            Clan,
+            Overlay,
+            Presence,
+            StatsPlayerOnline,
+            Stats
+        }
+
         [SerializeField] private bool _shouldStartAPI;
-        [SerializeField] private List<SteamComponent> _componentPrefabs;
+        [SerializeField] private List<SteamService> _steamService;
 
         private Dictionary<Type, SteamComponent> _components = new Dictionary<Type, SteamComponent>();
 
@@ -38,16 +50,33 @@ namespace Mark.Steamworks
 
         public void LaunchComponents()
         {
-            foreach (var component in _componentPrefabs)
+            foreach (var component in _steamService)
             {
-                var instance = Instantiate(component, transform);
-                instance.Initialize();
+                Type steamComponent = GetServiceType(component);
+
+                if (steamComponent == null) return;
+
+                GameObject gameObject = new GameObject(steamComponent.Name);
+                gameObject.transform.SetParent(transform);
+
+                var instance = gameObject.AddComponent(steamComponent) as SteamComponent;
+
+                if (instance != null)
+                {
+                    instance.Initialize();
+                }
+                else
+                {
+                    Destroy(gameObject);
+                    return;
+                }
 
                 var type = instance.GetType();
 
                 if (_components.ContainsKey(type))
                 {
                     Debug.LogWarning($"Компонент типа {type.Name} уже зарегистрирован.");
+                    Destroy(gameObject);
                     continue;
                 }
 
@@ -65,6 +94,17 @@ namespace Mark.Steamworks
             Debug.LogError($"Компонент типа {typeof(T).Name} не найден.");
             return null;
         }
+
+        private Type GetServiceType(SteamService service) => service switch
+        {
+            SteamService.Avatar => typeof(SteamAvatarService),
+            SteamService.Presence => typeof(SteamPresenceService),
+            SteamService.Overlay => typeof(SteamOverlayService),
+            SteamService.Clan => typeof(SteamClanService),
+            SteamService.StatsPlayerOnline => typeof(SteamStatsPlayerOnlineService),
+            SteamService.Stats => typeof(SteamStatsService),
+            _ => null,
+        };
     }
 }
 
