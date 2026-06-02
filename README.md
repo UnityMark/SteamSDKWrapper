@@ -37,13 +37,13 @@ Add `SteamWrapperManager` to a GameObject.
 In `SteamBoostrap`:
 
 - Enable **Should Start API**
-- Add required services to **Component Prefabs**
+- Add required services to **Steam Service**
 
 Example:
-- SteamStatsService  
-- SteamOverlayService  
-- SteamAvatarService  
-- SteamCloudSaveService  
+- Avatar  
+- Overlay 
+- Clan 
+- Stats 
 
 ---
 
@@ -53,3 +53,4 @@ Example:
 
 ```csharp
 var statsService = bootstrap.GetSteamComponent<SteamStatsService>();
+```
