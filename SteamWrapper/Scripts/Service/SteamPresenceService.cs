@@ -1,5 +1,4 @@
 using Steamworks;
-using UnityEngine;
 
 namespace Mark.Steamworks
 {
@@ -12,14 +11,13 @@ namespace Mark.Steamworks
 
         public void SetMenuStatus()
         {
-            SteamFriends.SetRichPresence("status", "In menu");
-            SteamFriends.SetRichPresence("steam_display", "#Status");
+            SteamFriends.SetRichPresence("steam_display", "#Status_MainMenu");
         }
 
-        public void SetInGameStatus(string levelName = null)
+        public void SetInGameStatus(int level)
         {
-            SteamFriends.SetRichPresence("status", levelName == null ? "Playing" : $"Playing {levelName}");
-            SteamFriends.SetRichPresence("steam_display", "#Status");
+            SteamFriends.SetRichPresence("level", $"{level}");
+            SteamFriends.SetRichPresence("steam_display", "#Status_Level");
         }
 
         public void ClearStatus()
@@ -33,3 +31,17 @@ namespace Mark.Steamworks
         }
     }
 }
+
+/* Example Rich File
+
+"lang"
+{
+	"Language"	"english"
+	"Tokens"
+	{
+		"#Status_MainMenu"	"In the main menu"
+		"#Status_Level"		"Playing level %level%"
+	}
+}
+
+*/
